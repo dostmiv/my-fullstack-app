@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Fullstack App</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>Library Manager</h1>
+      <p style="color: var(--text-light);">Manage your book collection with style</p>
+    </header>
+
+    <main>
+
+      <section>
+        <h2>Add a New Book</h2>
+        <div class="input-group">
+          <input type="text" id="bookTitle" placeholder="Book Title" />
+          <input type="text" id="bookAuthor" placeholder="Author Name" />
+          <button id="addBookBtn">Add to Collection</button>
+        </div>
+      </section>
+
+      <section>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h2 style="margin-bottom: 0; border: none;">My Collection</h2>
+          <button id="loadBooksBtn">Refresh List</button>
+        </div>
+
+        <div class="input-group" style="margin-bottom: 1.5rem;">
+          <input type="text" id="searchInput" placeholder="Search books..." style="max-width: 100%;">
+        </div>
+
+        <div id="bookList" class="book-grid"></div>
+      </section>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+
+</html>
