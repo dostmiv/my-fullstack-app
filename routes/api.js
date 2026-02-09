@@ -23,6 +23,7 @@ router.post("/books", async (req, res) => {
     await book.save();
     res.json(book);
   } catch (error) {
+    console.error("Error creating book:", error);
     if (error.code === 11000) {
       return res.status(400).json({ error: "Book already exists" });
     }
@@ -35,6 +36,7 @@ router.delete("/books/:id", async (req, res) => {
     await Book.findByIdAndDelete(req.params.id);
     res.json({ message: "Book deleted successfully" });
   } catch (error) {
+    console.error("Error deleting book:", error);
     res.status(500).json({ error: "Server error" });
   }
 });
@@ -49,6 +51,7 @@ router.put("/books/:id", async (req, res) => {
     );
     res.json(book);
   } catch (error) {
+    console.error("Error updating book:", error);
     res.status(500).json({ error: "Server error" });
   }
 });
