@@ -16,6 +16,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", homeRoute);
 app.use("/api", apiRoute);
+app.use("/auth", require("./routes/auth"));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

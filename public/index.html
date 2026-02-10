@@ -16,31 +16,75 @@
     <header>
       <h1>Library Manager</h1>
       <p style="color: var(--text-light);">Manage your book collection with style</p>
+      <div id="userInfo"
+        style="display: none; margin-top: 1rem; align-items: center; gap: 1rem; justify-content: center;">
+        <span id="usernameDisplay"></span>
+        <button id="logoutBtn" style="padding: 0.5rem 1rem; background: #ef4444; font-size: 0.8rem;">Logout</button>
+      </div>
     </header>
 
     <main>
+      <!-- Auth Section -->
+      <div id="authSection">
+        <div class="auth-container">
+          <!-- Login Form -->
+          <section id="loginForm">
+            <h2>Login</h2>
+            <div class="input-group" style="flex-direction: column;">
+              <input type="text" id="loginUsername" placeholder="Username" />
+              <input type="password" id="loginPassword" placeholder="Password" />
+              <button id="loginBtn">Login</button>
+            </div>
+            <p style="margin-top: 1rem; text-align: center;">
+              Don't have an account? <a href="#" id="showRegisterLink">Register</a>
+            </p>
+          </section>
 
-      <section>
-        <h2>Add a New Book</h2>
-        <div class="input-group">
-          <input type="text" id="bookTitle" placeholder="Book Title" />
-          <input type="text" id="bookAuthor" placeholder="Author Name" />
-          <button id="addBookBtn">Add to Collection</button>
+          <!-- Register Form -->
+          <section id="registerForm" style="display: none;">
+            <h2>Register</h2>
+            <div class="input-group" style="flex-direction: column;">
+              <input type="text" id="regUsername" placeholder="Username" />
+              <input type="password" id="regPassword" placeholder="Password" />
+              <button id="registerBtn">Register</button>
+            </div>
+            <p style="margin-top: 1rem; text-align: center;">
+              Already have an account? <a href="#" id="showLoginLink">Login</a>
+            </p>
+          </section>
         </div>
-      </section>
+      </div>
 
-      <section>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-          <h2 style="margin-bottom: 0; border: none;">My Collection</h2>
-          <button id="loadBooksBtn">Refresh List</button>
-        </div>
+      <!-- App Section (Hidden by default) -->
+      <div id="appSection" style="display: none;">
+        <section>
+          <h2>Add a New Book</h2>
+          <div class="input-group">
+            <input type="text" id="bookTitle" placeholder="Book Title" />
+            <input type="text" id="bookAuthor" placeholder="Author Name" />
+            <button id="addBookBtn">Add to Collection</button>
+          </div>
+        </section>
 
-        <div class="input-group" style="margin-bottom: 1.5rem;">
-          <input type="text" id="searchInput" placeholder="Search books..." style="max-width: 100%;">
-        </div>
+        <section>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2 style="margin-bottom: 0; border: none;">Book Collection</h2>
+            <button id="loadBooksBtn">Refresh List</button>
+          </div>
 
-        <div id="bookList" class="book-grid"></div>
-      </section>
+          <div class="input-group" style="margin-bottom: 1.5rem;">
+            <input type="text" id="searchInput" placeholder="Search books..." style="max-width: 100%;">
+          </div>
+
+          <div id="adminControls"
+            style="display: none; margin-bottom: 1rem; padding: 1rem; background: #e0e7ff; border-radius: var(--radius);">
+            <strong>Admin View:</strong> You can see all books including pending requests.
+          </div>
+
+          <div id="bookList" class="book-grid"></div>
+        </section>
+      </div>
+
     </main>
   </div>
   <script src="script.js"></script>

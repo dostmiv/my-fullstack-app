@@ -1,149 +1,150 @@
+// State
 let booksData = [];
+let currentUser = JSON.parse(localStorage.getItem("user")) || null;
+let token = localStorage.getItem("token") || null;
 
-const showToast = (message, type = "success") => {
-  let container = document.getElementById("toast-container");
-  if (!container) {
-    container = document.createElement("div");
-    container.id = "toast-container";
-    document.body.appendChild(container);
+// DOM Elements
+const authSection = document.getElementById("authSection");
+const appSection = document.getElementById("appSection");
+const userInfo = document.getElementById("userInfo");
+const usernameDisplay = document.getElementById("usernameDisplay");
+const loginForm = document.getElementById("loginForm");
+const registerForm = document.getElementById("registerForm");
+const adminControls = document.getElementById("adminControls");
+
+// --- Initialization ---
+const init = () => {
+  if (token && currentUser) {
+    showApp();
+  } else {
+    showAuth();
+  }
+};
+
+const showAuth = () => {
+  authSection.style.display = "block";
+  appSection.style.display = "none";
+  userInfo.style.display = "none";
+};
+
+const showApp = () => {
+  authSection.style.display = "none";
+  appSection.style.display = "block";
+  userInfo.style.display = "flex";
+  usernameDisplay.textContent = `Hello, ${currentUser.username} (${currentUser.role})`;
+
+  if (currentUser.role === 'admin') {
+    adminControls.style.display = "block";
+  } else {
+    adminControls.style.display = "none";
   }
 
-  const toast = document.createElement("div");
-  toast.className = `toast ${type}`;
-  toast.textContent = message;
+  loadBooks();
+};
 
-  container.appendChild(toast);
+// --- Auth Actions ---
+document.getElementById("loginBtn").addEventListener("click", async () => {
+  const username = document.getElementById("loginUsername").value;
+  const password = document.getElementById("loginPassword").value;
 
-  setTimeout(() => {
-    toast.style.animation = "slideOut 0.3s ease-in forwards";
-    toast.addEventListener("animationend", () => {
-      toast.remove();
+  try {
+    const res = await fetch("/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
     });
-  }, 3000);
-};
+    const data = await res.json();
 
-const deleteBook = (id) => {
-  fetch(`/api/books/${id}`, { method: "DELETE" })
-    .then((res) => {
-      if (res.ok) {
-        showToast("Book deleted successfully", "success");
-        loadBooks();
-      } else {
-        showToast("Failed to delete book", "error");
-      }
-    })
-    .catch((err) => console.error(err));
-};
-
-const saveEdit = (id) => {
-  const title = document.getElementById(`edit-title-${id}`).value;
-  const author = document.getElementById(`edit-author-${id}`).value;
-
-  fetch(`/api/books/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title, author }),
-  })
-    .then((res) => res.json())
-    .then(() => {
-      showToast("Book updated successfully", "success");
-      loadBooks();
-    })
-    .catch((err) => {
-      console.error(err);
-      showToast("Failed to update book", "error");
-    });
-};
-
-const cancelEdit = () => {
-  renderBooks(booksData);
-};
-
-const editBook = (id) => {
-  const book = booksData.find((b) => b._id === id);
-  if (!book) return;
-
-  // Find the card element to replace content
-  // Actually simplest way is to re-render ALL books but mark this one as 'editing'
-  renderBooks(booksData, id);
-};
-
-function renderBooks(books, editingId = null) {
-  const list = document.getElementById("bookList");
-  list.innerHTML = ""; // Clear list
-
-  books.forEach((book) => {
-    const card = document.createElement("div");
-    card.className = "book-card";
-
-    if (editingId === book._id) {
-      card.innerHTML = `
-            <input type="text" value="${book.title}" id="edit-title-${book._id}" style="margin-bottom: 0.5rem; width: 100%;">
-            <input type="text" value="${book.author}" id="edit-author-${book._id}" style="margin-bottom: 0.5rem; width: 100%;">
-            <div style="display: flex; gap: 0.5rem;">
-                <button onclick="saveEdit('${book._id}')" style="flex: 1; background: #10b981;">Save</button>
-                <button onclick="cancelEdit()" style="flex: 1; background: #6b7280;">Cancel</button>
-            </div>
-        `;
+    if (res.ok) {
+      loginSuccess(data);
     } else {
-      const title = document.createElement("div");
-      title.className = "book-title";
-      title.textContent = book.title;
-
-      const author = document.createElement("div");
-      author.className = "book-author";
-      author.textContent = book.author;
-
-      const actionsObj = document.createElement("div");
-      actionsObj.style.display = "flex";
-      actionsObj.style.gap = "0.5rem";
-      actionsObj.style.marginTop = "1rem";
-
-      const editBtn = document.createElement("button");
-      editBtn.textContent = "Edit";
-      editBtn.style.flex = "1";
-      editBtn.style.padding = "0.5rem";
-      editBtn.style.fontSize = "0.8rem";
-      editBtn.onclick = () => editBook(book._id);
-
-      const deleteBtn = document.createElement("button");
-      deleteBtn.className = "btn-delete";
-      deleteBtn.textContent = "Delete";
-      deleteBtn.style.marginTop = "0"; // Override margin
-      deleteBtn.style.flex = "1";
-      deleteBtn.onclick = () => deleteBook(book._id);
-
-      actionsObj.appendChild(editBtn);
-      actionsObj.appendChild(deleteBtn);
-
-      card.appendChild(title);
-      card.appendChild(author);
-      card.appendChild(actionsObj);
+      showToast(data.error || "Login failed", "error");
     }
-    list.appendChild(card);
-  });
-}
-
-function loadBooks() {
-  fetch("/api/books")
-    .then((res) => res.json())
-    .then((books) => {
-      booksData = books;
-      renderBooks(booksData);
-    });
-}
-
-document.getElementById("searchInput").addEventListener("input", (e) => {
-  const term = e.target.value.toLowerCase();
-  const filtered = booksData.filter(
-    (book) =>
-      book.title.toLowerCase().includes(term) ||
-      book.author.toLowerCase().includes(term)
-  );
-  renderBooks(filtered);
+  } catch (err) {
+    showToast("Server error", "error");
+  }
 });
 
-document.getElementById("loadBooksBtn").addEventListener("click", loadBooks);
+document.getElementById("registerBtn").addEventListener("click", async () => {
+  const username = document.getElementById("regUsername").value;
+  const password = document.getElementById("regPassword").value;
+
+  try {
+    const res = await fetch("/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      loginSuccess(data);
+    } else {
+      showToast(data.error || "Registration failed", "error");
+    }
+  } catch (err) {
+    showToast("Server error", "error");
+  }
+});
+
+const loginSuccess = (data) => {
+  token = data.token;
+  currentUser = {
+    _id: data._id,
+    username: data.username,
+    role: data.role
+  };
+
+  localStorage.setItem("token", token);
+  localStorage.setItem("user", JSON.stringify(currentUser));
+
+  showToast("Welcome back!", "success");
+  showApp();
+};
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  token = null;
+  currentUser = null;
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  showAuth();
+});
+
+// Toggle Auth Forms
+document.getElementById("showRegisterLink").addEventListener("click", (e) => {
+  e.preventDefault();
+  loginForm.style.display = "none";
+  registerForm.style.display = "block";
+});
+
+document.getElementById("showLoginLink").addEventListener("click", (e) => {
+  e.preventDefault();
+  registerForm.style.display = "none";
+  loginForm.style.display = "block";
+});
+
+// --- Book Actions ---
+
+const loadBooks = () => {
+  const endpoint = currentUser.role === 'admin' ? "/api/books/admin" : "/api/books";
+
+  fetch(endpoint, {
+    headers: { "Authorization": `Bearer ${token}` }
+  })
+    .then((res) => res.json())
+    .then((books) => {
+      if (Array.isArray(books)) {
+        booksData = books;
+        renderBooks(booksData);
+      } else {
+        // Handle 401/403 potentially if token expired
+        if (books.error === "Not authorized, token failed") {
+          document.getElementById("logoutBtn").click();
+        }
+      }
+    })
+    .catch(err => console.error(err));
+};
 
 document.getElementById("addBookBtn").addEventListener("click", () => {
   const title = document.getElementById("bookTitle").value;
@@ -158,24 +159,147 @@ document.getElementById("addBookBtn").addEventListener("click", () => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify({ title, author }),
   })
-    .then((res) => {
-      if (!res.ok) {
-        return res.json().then((err) => {
-          throw new Error(err.error || "Failed to add book");
-        });
-      }
-      return res.json();
-    })
+    .then((res) => res.json())
     .then((data) => {
-      showToast("Book added successfully!", "success");
+      if (data.error) throw new Error(data.error);
+
+      showToast(data.message || "Book added", "success");
       document.getElementById("bookTitle").value = "";
       document.getElementById("bookAuthor").value = "";
-      loadBooks(); // Reload the list
+      loadBooks();
     })
     .catch((err) => {
       showToast(err.message, "error");
     });
 });
+
+const deleteBook = (id) => {
+  if (!confirm("Are you sure?")) return;
+
+  fetch(`/api/books/${id}`, {
+    method: "DELETE",
+    headers: { "Authorization": `Bearer ${token}` }
+  })
+    .then((res) => {
+      if (res.ok) {
+        showToast("Book deleted", "success");
+        loadBooks();
+      } else {
+        showToast("Failed to delete", "error");
+      }
+    });
+};
+
+const updateStatus = (id, status) => {
+  fetch(`/api/books/${id}/status`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({ status })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) throw new Error(data.error);
+      showToast(`Book ${status}`, "success");
+      loadBooks();
+    })
+    .catch(err => showToast(err.message, "error"));
+};
+
+// --- Rendering ---
+function renderBooks(books) {
+  const list = document.getElementById("bookList");
+  list.innerHTML = "";
+
+  books.forEach((book) => {
+    const card = document.createElement("div");
+    card.className = "book-card";
+
+    // Status Badge (for admin or if pending)
+    let badge = "";
+    if (book.status === 'pending') {
+      badge = `<span class="badge badge-pending">Pending Approval</span>`;
+    } else if (book.status === 'approved' && currentUser.role === 'admin') {
+      badge = `<span class="badge badge-approved">Approved</span>`;
+    }
+
+    // Admin Actions
+    let adminActions = "";
+    if (currentUser.role === 'admin') {
+      if (book.status === 'pending') {
+        adminActions = `
+                    <div class="admin-actions">
+                        <button class="btn-approve" onclick="updateStatus('${book._id}', 'approved')">Approve</button>
+                    </div>
+                `; // Reject effectively just leaves it pending or we could add a reject status. 
+        // For now, let's just say Approve or Delete. 
+        // Or purely Reject button?
+        // Plan said Approve/Reject. Let's add Reject button that maybe sets status to rejected? 
+        // Backend enforces 'pending'/'approved'. 
+        // So 'Reject' might just mean 'Delete' in this simple app context, 
+        // or we need to update enum. 
+        // Simple app: Reject = Delete.
+
+        adminActions = `
+                    <div class="admin-actions">
+                        <button class="btn-approve" onclick="updateStatus('${book._id}', 'approved')">Approve</button>
+                        <button class="btn-delete" style="margin:0; font-size: 0.7rem; padding: 0.25rem 0.5rem;" onclick="deleteBook('${book._id}')">Reject</button>
+                    </div>
+                `;
+      } else {
+        adminActions = `
+                    <button class="btn-delete" onclick="deleteBook('${book._id}')">Delete</button>
+                `;
+      }
+    }
+
+    card.innerHTML = `
+            ${badge}
+            <div class="book-title">${book.title}</div>
+            <div class="book-author">${book.author}</div>
+            ${adminActions}
+        `;
+
+    list.appendChild(card);
+  });
+}
+
+// Toast Notification
+const showToast = (message, type = "success") => {
+  let container = document.getElementById("toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "toast-container";
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = "slideOut 0.3s ease-in forwards";
+    toast.addEventListener("animationend", () => toast.remove());
+  }, 3000);
+};
+
+// Search
+document.getElementById("searchInput").addEventListener("input", (e) => {
+  const term = e.target.value.toLowerCase();
+  const filtered = booksData.filter(
+    (book) =>
+      book.title.toLowerCase().includes(term) ||
+      book.author.toLowerCase().includes(term)
+  );
+  renderBooks(filtered);
+});
+
+document.getElementById("loadBooksBtn").addEventListener("click", loadBooks);
+
+// Init
+init();

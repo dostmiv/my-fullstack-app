@@ -132,6 +132,7 @@ button:active {
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
+    position: relative;
 }
 
 .book-card:hover {
@@ -152,14 +153,68 @@ button:active {
     font-style: italic;
 }
 
-#userList {
-    list-style: none;
-    margin-bottom: 1rem;
+/* Auth Styles */
+.auth-container {
+    max-width: 400px;
+    margin: 0 auto;
 }
 
-#userList li {
-    padding: 0.5rem;
-    border-bottom: 1px solid #eee;
+.auth-container section {
+    padding: 2.5rem;
+}
+
+.auth-container h2 {
+    text-align: center;
+    border: none;
+}
+
+.auth-container a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Badges */
+.badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.badge-pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.badge-approved {
+    background: #d1fae5;
+    color: #059669;
+}
+
+/* Admin Controls */
+.admin-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.btn-approve {
+    background: #10b981;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    flex: 1;
+}
+
+.btn-reject {
+    background: #f59e0b;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    flex: 1;
 }
 
 /* Toast Notifications */
