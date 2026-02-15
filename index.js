@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 mongoose
-	.connect("mongodb+srv://mertsondas0505_db_user:G5hsQX0wnykfIBFO@cluster0.mhv2xkj.mongodb.net/?appName=Cluster0")
+	.connect("MONGO_URI")
 	.then(() => console.log("MongoDB connected"))
 	.catch((err) => console.error("MongoDB error", err));
 const express = require("express");
