@@ -12,11 +12,14 @@ app.use(express.json());
 const homeRoute = require("./routes/home");
 const apiRoute = require("./routes/api");
 
-app.use(express.static(path.join(__dirname, "public")));
+
+//app.use("/static", express.static("public"));
 
 app.use("/", homeRoute);
 app.use("/api", apiRoute);
 app.use("/auth", require("./routes/auth"));
+
+app.use(express.static(path.join(__dirname, "public")));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
